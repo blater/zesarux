@@ -60,8 +60,10 @@ static AudioUnit gOutputUnit;
 
 /* Records sound writer status information */
 static int audio_output_started;
+static uint8_t coreaudio_last_output_frame[2];
 
 void audiocoreaudio_fifo_write(char *origen,int longitud);
+void audiocoreaudio_empty_buffer(void);
 
 //Tamanyo de fifo. Es un multiplicador de AUDIO_BUFFER_SIZE
 int audiocoreaudio_fifo_buffer_size_multiplier=2;
@@ -148,6 +150,7 @@ int audiocoreaudio_init(void)
 	debug_printf (VERBOSE_INFO,"Init CoreAudio Driver, %d Hz",FRECUENCIA_SONIDO);
 
 	buffer_actual=audio_buffer_one;
+	audiocoreaudio_empty_buffer();
 
 int *freqptr;
 int freqqqq;
@@ -435,6 +438,9 @@ if (audio_playing.v==0) audio_playing.v=1;
 buffer_actual=buffer;
 
 
+audiocoreaudio_fifo_write(buffer,AUDIO_BUFFER_SIZE);
+
+
   if( !audio_output_started ) {
     /* Start the rendering
        The DefaultOutputUnit will do any format conversions to the format of the
@@ -449,8 +455,6 @@ buffer_actual=buffer;
 
     audio_output_started = 1;
   }
-
-audiocoreaudio_fifo_write(buffer,AUDIO_BUFFER_SIZE);
 
 
 }
@@ -473,9 +477,12 @@ void audiocoreaudio_end(void)
 	struct AURenderCallbackStruct callback;
 
 	/* stop processing the audio unit */
-	if (AudioOutputUnitStop(gOutputUnit) != noErr) {
-		debug_printf (VERBOSE_ERR,"audiocoreaudio_end AudioOutputUnitStop failed");
-		return;
+	if (audio_output_started) {
+		if (AudioOutputUnitStop(gOutputUnit) != noErr) {
+			debug_printf (VERBOSE_ERR,"audiocoreaudio_end AudioOutputUnitStop failed");
+			return;
+		}
+		audio_output_started=0;
 	}
 
 	/* Remove the input callback */
@@ -500,6 +507,9 @@ void audiocoreaudio_empty_buffer(void)
 {
   debug_printf(VERBOSE_DEBUG,"Emptying audio buffer");
   audiocoreaudio_fifo_write_position=0;
+  audiocoreaudio_fifo_read_position=0;
+  coreaudio_last_output_frame[0]=0;
+  coreaudio_last_output_frame[1]=0;
 }
 
 
@@ -602,18 +612,17 @@ OSStatus coreaudiowrite( void *inRefCon GCC_UNUSED,
 {
   int len = deviceFormat.mBytesPerFrame * inNumberFrames;
   uint8_t* out = ioData->mBuffers[0].mData;
+	int i;
 
 
 
 	//si esta el sonido desactivado, enviamos silencio
 	if (audio_playing.v==0) {
-		uint8_t *puntero_salida;
-		puntero_salida = out;
-		while (len>0) {
-			*puntero_salida=0;
-			puntero_salida++;
-			len--;
+		for (i=0;i<len;i++) {
+			out[i]=0;
 		}
+		coreaudio_last_output_frame[0]=0;
+		coreaudio_last_output_frame[1]=0;
 		//printf ("audio_playing.v=0 en audiocoreaudio\n");
 	}
 
@@ -622,17 +631,23 @@ OSStatus coreaudiowrite( void *inRefCon GCC_UNUSED,
 		//printf ("coreaudiowrite. longitud pedida: %d AUDIO_BUFFER_SIZE: %d\n",len,AUDIO_BUFFER_SIZE);
 		if (len>audiocoreaudio_fifo_return_size()) {
 			//debug_printf (VERBOSE_DEBUG,"FIFO is not big enough. Length asked: %d audiocoreaudio_fifo_return_size: %d",len,audiocoreaudio_fifo_return_size() );
-			//esto puede pasar con el detector de silencio
+			//esto puede pasar con el detector de silencio o un underrun
 
-			//retornar solo lo que tenemos
-			//audiocoreaudio_fifo_read(out,audiocoreaudio_fifo_return_size() );
-
-			return noErr;
+			//Repetir el ultimo frame completo. CoreAudio no garantiza que el
+			//buffer conserve el contenido de la llamada anterior, y devolverlo
+			//sin escribir genera datos indeterminados y clicks audibles.
+			for (i=0;i<len;i++) {
+				out[i]=coreaudio_last_output_frame[i & 1];
+			}
 		}
 
 
 		else {
 			audiocoreaudio_fifo_read(out,len);
+			if (len>=2) {
+				coreaudio_last_output_frame[0]=out[len-2];
+				coreaudio_last_output_frame[1]=out[len-1];
+			}
 		}
 
 	}
