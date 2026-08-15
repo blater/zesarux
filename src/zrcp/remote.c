@@ -6423,7 +6423,7 @@ int remote_initialize_port(void)
 //#endif
 
 
-    int result=assignar_adr_internet(sock_listen,NULL,remote_protocol_port);
+    int result=assignar_adr_internet(sock_listen,remote_protocol_host,remote_protocol_port);
 
 //#ifndef MINGW
   if (result<0) {

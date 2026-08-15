@@ -5587,6 +5587,7 @@ int util_write_configfile(void)
 
     if (remote_protocol_enabled.v)                  ADD_STRING_CONFIG,"--enable-remoteprotocol");
                                                     ADD_STRING_CONFIG,"--remoteprotocol-port %d",remote_protocol_port);
+                                                    ADD_STRING_CONFIG,"--remoteprotocol-host %s",remote_protocol_host);
                                                     ADD_STRING_CONFIG,"--remoteprotocol-prompt \"%s\"",remote_prompt_command_string);
     if (remote_protocol_char_mode.v)                ADD_STRING_CONFIG,"--remoteprotocol-linemode-telnet");
 
