@@ -52,6 +52,8 @@ extern int verbose_level;
 
 extern z80_bit remote_protocol_enabled;
 extern int remote_protocol_port;
+#define REMOTE_MAX_HOST_LENGTH 64
+extern char remote_protocol_host[];
 #define REMOTE_MAX_PROMPT_LENGTH 100
 extern char remote_prompt_command_string[];
 extern z80_bit remote_protocol_char_mode;
@@ -228,4 +230,3 @@ extern z80_bit storage_accelerate_saving;
 extern int disable_fullscreen_on_exit_zesarux;
 
 #endif
-
