@@ -161,6 +161,7 @@ int verbose_level=0;
 
 int remote_protocol_port=DEFAULT_REMOTE_PROTOCOL_PORT;
 z80_bit remote_protocol_enabled={0};
+char remote_protocol_host[REMOTE_MAX_HOST_LENGTH]="127.0.0.1";
 char remote_prompt_command_string[REMOTE_MAX_PROMPT_LENGTH]="command";
 z80_bit remote_protocol_char_mode={0};
 

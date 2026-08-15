@@ -1010,6 +1010,7 @@ printf (
 #ifdef USE_PTHREADS
         "--enable-remoteprotocol             Enable ZRCP remote protocol\n"
         "--remoteprotocol-port n             Set remote protocol port (default: 10000)\n"
+        "--remoteprotocol-host h             Set remote protocol bind host (default: 127.0.0.1)\n"
         "--remoteprotocol-prompt p           Change the command prompt shown on remote protocol\n"
         "--remoteprotocol-linemode-telnet    Enables Linemode Telnet (char mode) connection\n"
 
@@ -7309,6 +7310,12 @@ int parse_cmdline_options(int desde_commandline)
             }
 
             else remote_protocol_port=valor;
+         }
+
+         else if (!strcmp(argv[puntero_parametro],"--remoteprotocol-host")) {
+            siguiente_parametro_argumento();
+            strncpy(remote_protocol_host,argv[puntero_parametro],REMOTE_MAX_HOST_LENGTH-1);
+            remote_protocol_host[REMOTE_MAX_HOST_LENGTH-1]=0;
          }
 
          else if (!strcmp(argv[puntero_parametro],"--remoteprotocol-prompt")) {
