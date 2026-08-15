@@ -1377,24 +1377,27 @@ void envio_audio(void)
 		//con pthreads, el comportamiento era un tanto extranyo, sobretodo en z88 y mac, en que el driver es lento,
 		//y no llega a llenar el buffer de audio
 
-		//si se ha llenado el buffer, audio_buffer_indice=AUDIO_BUFFER_SIZE-1
-		//pero si falta un byte para llenar el buffer, audio_buffer_indice=AUDIO_BUFFER_SIZE-1 tambien!
-		//entonces nos faltara 1 byte para llenar,
+		//si se ha llenado el buffer, audio_buffer_indice=AUDIO_BUFFER_SIZE*2-2
+		//pero si falta un frame stereo para llenar el buffer, el indice tiene
+		//el mismo valor. Entonces nos faltara un frame para llenar,
 		//pero... como aqui se llama cada 5 frames de pantalla, esto o bien esta lleno el buffer,
-		//o al buffer le faltan 5 bytes para llenar minimo.
+		//o al buffer le faltan 5 frames stereo para llenar minimo.
 
 		//printf ("audio_buffer_indice: %d AUDIO_BUFFER_SIZE: %d\n",audio_buffer_indice,AUDIO_BUFFER_SIZE);
-		if (audio_buffer_indice<AUDIO_BUFFER_SIZE-1 && audio_buffer_indice>0) {
+		if (audio_buffer_indice<AUDIO_BUFFER_SIZE*2-2 && audio_buffer_indice>1) {
 			//int debug_diferencia=AUDIO_BUFFER_SIZE-1-audio_buffer_indice;
 			//printf ("entrando %d dif: %d\n",temp_borrarrrr++,debug_diferencia);
 			//Aqui audio_buffer_indice siempre deberia entrar >0. pero comprobamos por si acaso
-			char valor_enviar;
-			valor_enviar=audio_buffer[audio_buffer_indice-1];
+			char valor_enviar_izquierdo;
+			char valor_enviar_derecho;
+			valor_enviar_izquierdo=audio_buffer[audio_buffer_indice-2];
+			valor_enviar_derecho=audio_buffer[audio_buffer_indice-1];
 
-			//printf ("valor a enviar: %d\n",valor_enviar);
+			//printf ("valores a enviar: %d %d\n",valor_enviar_izquierdo,valor_enviar_derecho);
 
-	                while (audio_buffer_indice<AUDIO_BUFFER_SIZE) {
-        	        	audio_buffer[audio_buffer_indice++]=valor_enviar;
+	                while (audio_buffer_indice<AUDIO_BUFFER_SIZE*2) {
+				audio_buffer[audio_buffer_indice++]=valor_enviar_izquierdo;
+				audio_buffer[audio_buffer_indice++]=valor_enviar_derecho;
 				//printf ("en envio_audio. audio_buffer_indice: %d\n",audio_buffer_indice);
 	                }
 
