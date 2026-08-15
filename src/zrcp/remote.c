@@ -790,6 +790,7 @@ struct s_items_ayuda items_ayuda[]={
     {"realtape-open",NULL,"file","Inserts real tape"},
   {"reset-cpu",NULL,NULL,"Resets CPU"},
     {"reset-tstates-partial",NULL,NULL,"Resets the t-states partial counter"},
+    {"reset-tstates-partial-ack",NULL,NULL,"Resets the partial counter and reports the acknowledged value"},
   {"run","|r","[verbose] [limit] [no-stop-on-data] [update-immediately]","Run cpu when on cpu step mode. Returns when a breakpoint is fired, data sent (for example keypress) or any other event which opens the menu.\n"
     "Set verbose parameter to get verbose output\n"
     "limit parameter is a number of opcodes to run before returning\n"
@@ -5237,6 +5238,11 @@ void interpreta_comando(char *comando,int misocket,char *buffer_lectura_socket_a
 
     else if (!strcmp(comando_sin_parametros,"reset-tstates-partial")) {
         debug_t_estados_parcial=0;
+    }
+
+    else if (!strcmp(comando_sin_parametros,"reset-tstates-partial-ack")) {
+        debug_t_estados_parcial=0;
+        escribir_socket_format(misocket,"TSTATES-PARTIAL-RESET:%09u",debug_t_estados_parcial);
     }
 
   else if (!strcmp(comando_sin_parametros,"run") || !strcmp(comando_sin_parametros,"r")) {
