@@ -2052,6 +2052,17 @@ void remote_cpu_enter_step(int misocket)
     //Si ya estaba este modo, salir sin mas
     if (menu_event_remote_protocol_enterstep.v) return;
 
+    /* Headless automation has no debug window to acknowledge CPU-step mode.
+     * Keep the protocol state and pause the core directly when the null video
+     * driver is selected. */
+    if (!strcmp(scr_new_driver_name,"null")) {
+        menu_multitarea_antes_cpu_step=menu_multitarea;
+        menu_event_remote_protocol_enterstep.v=1;
+        menu_set_menu_abierto(1);
+        remote_ack_enter_cpu_step.v=1;
+        return;
+    }
+
     //De momento solo simular pulsacion de tecla de menu, eso hace saltar el step
 
     //TODO: Pendiente de eliminar esta variable. Tiene sentido???
