@@ -31294,7 +31294,7 @@ void menu_tell_if_realjoystick_detected(void)
 {
             //Si detectado real joystick
             //Si detectado joystick real y si hay autoguardado de config
-            if (save_configuration_file_on_exit.v) {
+            if (save_configuration_file_on_exit.v && silent_startup_messages.v==0) {
                     if (realjoystick_present.v) {
                             menu_set_menu_abierto(1);
                             //printf ("decir menu abierto\n");

@@ -211,7 +211,7 @@ void *stats_check_updates_pthread(void *nada GCC_UNUSED)
 {
 
 	//opcion de comprobar updates desactivada
-	if (stats_check_updates_enabled.v==0) return NULL;
+	if (stats_check_updates_enabled.v==0 || silent_startup_messages.v) return NULL;
 
 	//opcion de guardar config desactivada. importante: si no se puede guardar config, no se podria decir que ese update ya ha aparecido,
 	//y estaria molestando siempre al usuario

@@ -59,4 +59,6 @@ extern char running_machine_hardware_name[];
 
 extern int first_start_wizard_disabled;
 
+extern z80_bit silent_startup_messages;
+
 #endif

@@ -4299,6 +4299,8 @@ int util_write_configfile(void)
     //sprintf (buffer_temp,"--zoom %d",zoom_x);
     if (save_configuration_file_on_exit.v)          ADD_STRING_CONFIG,"--saveconf-on-exit");
 
+    if (silent_startup_messages.v)                  ADD_STRING_CONFIG,"--silent");
+
 
     //Estos dos justo al principio para poder avisar si se ha hecho downgrade
     //Ademas el --last-version-text antes

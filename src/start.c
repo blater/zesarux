@@ -291,6 +291,9 @@ char zesarux_path_location[PATH_MAX]="";
 //Si activado el homenaje para David
 z80_bit activated_in_memoriam_david={0};
 
+//Suppress informational startup UI while preserving warnings and errors
+z80_bit silent_startup_messages={0};
+
 //Inicio command_line flags
 z80_bit command_line_zx8081_vsync_sound={0};
 z80_bit command_line_wrx={0};
@@ -1155,6 +1158,7 @@ printf (
         "--enable-search-menu           Enable search menu feature (enabled by default)\n"
 
         "--nowelcomemessage             Disable welcome logo & message\n"
+        "--silent, -s                   Suppress informational startup messages\n"
         "--fastwelcomemessage           Sets fast welcome message\n"
         "--quickexit                    Exit emulator quickly: no yes/no confirmation and no fadeout\n"
 
@@ -2854,6 +2858,24 @@ void main_init_audio(void)
 }
 
 
+static void enable_silent_startup_messages(void)
+{
+    silent_startup_messages.v=1;
+    zesarux_has_been_downgraded.v=0;
+    menu_first_aid_startup=0;
+}
+
+static int has_silent_startup_option(int option_argc,char *option_argv[])
+{
+    int i;
+
+    for (i=1;i<option_argc;i++) {
+        if (!strcmp(option_argv[i],"--silent") || !strcmp(option_argv[i],"-s")) return 1;
+    }
+
+    return 0;
+}
+
 //desde_commandline: si parsea desde commandline (1) o desde archivo de config (0)
 int parse_cmdline_options(int desde_commandline)
 {
@@ -2899,6 +2921,10 @@ int parse_cmdline_options(int desde_commandline)
                                 //Este parametro aqui se ignora, solo se lee antes del parseo del archivo de configuracion
                     siguiente_parametro_argumento();
                         }
+
+            else if (!strcmp(argv[puntero_parametro],"--silent") || !strcmp(argv[puntero_parametro],"-s")) {
+                enable_silent_startup_messages();
+            }
 
             else if (!strcmp(argv[puntero_parametro],"--saveconf-on-exit")) {
                 save_configuration_file_on_exit.v=1;
@@ -7966,11 +7992,13 @@ int parse_cmdline_options(int desde_commandline)
                 last_buildnumber_int=atoi(last_version_string);
 
                 if (buildnumber_int<last_buildnumber_int) {
-                    printf("It seems you have downgraded ZEsarUX from %s to %s\n"
-                    "If there is any unknown parameter on the configuration file, from the moment that parameter is detected, the rest of the parameters are tried to be read\n",
-                        last_version_text_string,EMULATOR_VERSION);
-                    zesarux_has_been_downgraded.v=1;
-                    sleep(3);
+                    if (silent_startup_messages.v==0) {
+                        printf("It seems you have downgraded ZEsarUX from %s to %s\n"
+                        "If there is any unknown parameter on the configuration file, from the moment that parameter is detected, the rest of the parameters are tried to be read\n",
+                            last_version_text_string,EMULATOR_VERSION);
+                        zesarux_has_been_downgraded.v=1;
+                        sleep(3);
+                    }
                 }
             }
 
@@ -8838,6 +8866,10 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
 
     int noconfigfile=0;
 
+    if (has_silent_startup_option(main_argc,main_argv)) {
+        enable_silent_startup_messages();
+    }
+
     if (main_argc>1) {
         if (!strcmp(main_argv[1],"--noconfigfile")) {
             noconfigfile=1;
@@ -8874,6 +8906,10 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
         argc=configfile_argc;
         argv=configfile_argv;
         puntero_parametro=0;
+
+        if (has_silent_startup_option(configfile_argc,configfile_argv)) {
+            enable_silent_startup_messages();
+        }
 
         //Desde parseo de archivo de config no se genera error nunca, se es mas tolerante, avisando del error, pero
         //parseando siguientes parametros
@@ -8915,6 +8951,10 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
             argv=devconfigfile_argv;
             puntero_parametro=0;
 
+            if (has_silent_startup_option(devconfigfile_argc,devconfigfile_argv)) {
+                enable_silent_startup_messages();
+            }
+
             //Desde parseo de archivo de config no se genera error nunca, se es mas tolerante, avisando del error, pero
             //parseando siguientes parametros
 
@@ -8923,6 +8963,8 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
     }
 
     if (test_config_and_exit.v) exit(0);
+
+    if (silent_startup_messages.v) zesarux_first_start=0;
 
     //Init random value. Usado en AY Chip y Random ram y mensajes "kidding"
     init_randomize_noise_value();
@@ -9196,7 +9238,7 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
     //Texto recordatorio de David, solo la primera vez
     //solo si el autoguardado de config esta activado
     //Al salir, se activara la opcion de no mostrar de nuevo el recordatorio
-    if (save_configuration_file_on_exit.v && do_no_show_david_in_memoriam.v==0) {
+    if (save_configuration_file_on_exit.v && do_no_show_david_in_memoriam.v==0 && silent_startup_messages.v==0) {
 
         if (!strcmp(EMULATOR_GAME_EDITION,"David")) {
 
@@ -9211,7 +9253,7 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
     }
 
 
-    if (opcion_no_welcome_message.v==0) {
+    if (opcion_no_welcome_message.v==0 && silent_startup_messages.v==0) {
         set_welcome_message();
     }
 
@@ -9385,7 +9427,7 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
     //Si la version actual es mas nueva que la anterior mostrar changelog
     //eso solo si el autoguardado de config esta activado
     //Y no hacer saltar esto cuando sale el In Memoriam de David
-    if (save_configuration_file_on_exit.v && do_no_show_changelog_when_update.v==0 && activated_in_memoriam_david.v==0) {
+    if (save_configuration_file_on_exit.v && do_no_show_changelog_when_update.v==0 && activated_in_memoriam_david.v==0 && silent_startup_messages.v==0) {
         //if (strcmp(last_version_string,EMULATOR_VERSION)) {  //Si son diferentes
         if (strcmp(last_version_string,BUILDNUMBER) && last_version_string[0]!=0) {  //Si son diferentes y last_version_string no es nula
             //Y si driver permite menu normal
@@ -9403,7 +9445,7 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
 
 
     //Si la version actual es mas vieja, aviso del downgrade
-    if (zesarux_has_been_downgraded.v) {
+    if (zesarux_has_been_downgraded.v && silent_startup_messages.v==0) {
        menu_set_menu_abierto(1);
     }
 
