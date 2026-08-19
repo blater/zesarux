@@ -5402,6 +5402,8 @@ int util_write_configfile(void)
                                                     ADD_STRING_CONFIG,"--total-minutes-use %d",total_minutes_use);
 
 
+    if (stats_no_updates.v)                         ADD_STRING_CONFIG,"--noupdates");
+
     if (stats_asked.v)                              ADD_STRING_CONFIG,"--stats-send-already-asked");
     if (stats_enabled.v)                            ADD_STRING_CONFIG,"--stats-send-enabled");
 

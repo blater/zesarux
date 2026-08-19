@@ -1478,6 +1478,7 @@ screen_effect_print_names();
         "\n"
 
         "--total-minutes-use n                 Total minutes of use of ZEsarUX\n"
+        "--noupdates                           Disable update checks and telemetry\n"
         "--stats-send-already-asked            Do not ask to send statistics\n"
         "--stats-send-enabled                  Enable send statistics\n"
         "--stats-uuid s                        UUID to send statistics\n"
@@ -7933,6 +7934,10 @@ int parse_cmdline_options(int desde_commandline)
                 siguiente_parametro_argumento();
                 total_minutes_use=parse_string_to_number(argv[puntero_parametro]);
 
+            }
+
+            else if (!strcmp(argv[puntero_parametro],"--noupdates")) {
+                stats_no_updates.v=1;
             }
 
             else if (!strcmp(argv[puntero_parametro],"--stats-send-already-asked")) {

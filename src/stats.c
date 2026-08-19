@@ -49,6 +49,7 @@ char stats_uuid[STATS_UUID_MAX_LENGTH+1]="";
 
 z80_bit stats_enabled={0};
 z80_bit stats_asked={0};
+z80_bit stats_no_updates={0};
 z80_bit stats_check_updates_enabled={1};
 z80_bit stats_check_yesterday_users_enabled={1};
 
@@ -69,6 +70,8 @@ int stats_frames_total_dropped=0;
 
 void generate_stats_uuid(void)
 {
+	if (stats_no_updates.v) return;
+
     //printf("Initial uuid: %s\n",stats_uuid);
 	//Hay un id anterior. conservarlo
 	if (stats_uuid[0]!=0) {
@@ -107,6 +110,8 @@ void stats_disable(void)
 
 void stats_ask_if_enable(void)
 {
+	if (stats_no_updates.v) return;
+
 	int valor_opcion=1;
 
 	zxvision_menu_generic_message_setting("Send Statistics","Do you want to send anonymous statistics use? The following information is sent to a server, every time ZEsarUX starts:\n"
@@ -134,7 +139,7 @@ void stats_ask_if_enable(void)
 void *send_stats_server_pthread(void *nada GCC_UNUSED)
 {
 
-	if (stats_enabled.v==0) return NULL;
+	if (stats_no_updates.v || stats_enabled.v==0) return NULL;
 	debug_printf(VERBOSE_INFO,"Starting sending statistics pthread");
 
 	//prueba tonta de enviar una conexion http a mi servidor
@@ -211,7 +216,7 @@ void *stats_check_updates_pthread(void *nada GCC_UNUSED)
 {
 
 	//opcion de comprobar updates desactivada
-	if (stats_check_updates_enabled.v==0 || silent_startup_messages.v) return NULL;
+	if (stats_no_updates.v || stats_check_updates_enabled.v==0 || silent_startup_messages.v) return NULL;
 
 	//opcion de guardar config desactivada. importante: si no se puede guardar config, no se podria decir que ese update ya ha aparecido,
 	//y estaria molestando siempre al usuario
@@ -321,7 +326,7 @@ void *stats_check_yesterday_users_pthread(void *nada GCC_UNUSED)
 {
 
 	//opcion de comprobar updates desactivada
-	if (stats_check_yesterday_users_enabled.v==0) return NULL;
+	if (stats_no_updates.v || stats_check_yesterday_users_enabled.v==0) return NULL;
 
 
 	debug_printf(VERBOSE_INFO,"Starting check yesterday users pthread");
