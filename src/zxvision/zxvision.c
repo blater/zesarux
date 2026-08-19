@@ -575,6 +575,11 @@ void zxvision_set_configurable_icon_extra_info(int indice_icono,char *extra_info
     strcpy(zxdesktop_configurable_icons_list[indice_icono].extra_info,extra_info);
 }
 
+void zxvision_set_configurable_icon_alternate_bitmap(int indice_icono,char *alternate_bitmap)
+{
+    strcpy(zxdesktop_configurable_icons_list[indice_icono].alternate_bitmap,alternate_bitmap);
+}
+
 //Ver cuantos iconos hay cerca para saber si se puede posicionar uno o no
 int zxvision_si_icono_cerca(int x,int y)
 {
@@ -1032,6 +1037,11 @@ void init_zxdesktop_configurable_icons(void)
 
         //text icon en blanco
         zxdesktop_configurable_icons_list[i].text_icon[0]=0;
+
+        //alternate bitmap en blanco
+        zxdesktop_configurable_icons_list[i].alternate_bitmap[0]=0;
+
+        zxdesktop_configurable_icons_clear_cache_bitmap(i);
     }
 }
 
@@ -6327,199 +6337,6 @@ char **menu_ext_desktop_draw_configurable_icon_return_machine_icon(void)
 }
 
 
-/*
-char **old_menu_ext_desktop_draw_configurable_icon_return_machine_icon(void)
-{
-
-    char **bitmap;
-
-    //Por defecto
-    bitmap=bitmap_button_ext_desktop_my_machine_generic;
-
-    //Para un gomas
-    if (MACHINE_IS_SPECTRUM_16 || MACHINE_IS_SPECTRUM_48) {
-        bitmap=bitmap_button_ext_desktop_my_machine_gomas;
-    }
-    else if (MACHINE_IS_ZX81) {
-        bitmap=bitmap_button_ext_desktop_my_machine_zx81;
-    }
-    else if (MACHINE_IS_TIMEX_TS1000) {
-        bitmap=bitmap_button_ext_desktop_my_machine_ts1000;
-    }
-    else if (MACHINE_IS_TIMEX_TS1500) {
-        bitmap=bitmap_button_ext_desktop_my_machine_ts1500;
-    }
-    //TK82C igual al TK82 en apariencia pero sin la C (y teclado diferente tambien)
-    else if (MACHINE_IS_MICRODIGITAL_TK82) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk82c;
-    }
-    else if (MACHINE_IS_MICRODIGITAL_TK82C) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk82c;
-    }
-    else if (MACHINE_IS_MICRODIGITAL_TK83) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk83;
-    }
-    else if (MACHINE_IS_MICRODIGITAL_TK85) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk85;
-    }
-    else if (MACHINE_IS_ZX80) {
-        bitmap=bitmap_button_ext_desktop_my_machine_zx80;
-    }
-
-    //Aunque el teclado sea el de un zx80, la imagen exterior es casi como un zx81??
-    else if (MACHINE_IS_MICRODIGITAL_TK80) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk80;
-    }
-
-    //Aunque el teclado sea el de un zx80, la imagen exterior es casi como un zx81??
-    else if (MACHINE_IS_MICRODIGITAL_TK82) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk82;
-    }
-
-
-    else if (MACHINE_IS_ACE) {
-        bitmap=bitmap_button_ext_desktop_my_machine_ace;
-    }
-
-    else if (MACHINE_IS_MK14_STANDARD) {
-        bitmap=bitmap_button_ext_desktop_my_machine_mk14;
-    }
-
-    else if (MACHINE_IS_QL) {
-        bitmap=bitmap_button_ext_desktop_my_machine_ql;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_128_SPA) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_128_spa;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_128) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_128_eng;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_P2) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_p2;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_P2A) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_p2a;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_P3) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_p3;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_48_PLUS_SPA) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_48_spa;
-    }
-
-    else if (MACHINE_IS_SPECTRUM_48_PLUS_ENG) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_48_spa;
-    }
-
-    else if (MACHINE_IS_PENTAGON) {
-        bitmap=bitmap_button_ext_desktop_my_machine_pentagon;
-    }
-
-    else if (MACHINE_IS_INVES) {
-        bitmap=bitmap_button_ext_desktop_my_machine_inves;
-    }
-
-    else if (MACHINE_IS_CPC_464 || MACHINE_IS_CPC_4128) {
-        bitmap=bitmap_button_ext_desktop_my_machine_cpc_464;
-    }
-
-    else if (MACHINE_IS_CPC_664) {
-        bitmap=bitmap_button_ext_desktop_my_machine_cpc_664;
-    }
-
-    else if (MACHINE_IS_CPC_6128) {
-        bitmap=bitmap_button_ext_desktop_my_machine_cpc_6128;
-    }
-
-    else if (MACHINE_IS_PCW) {
-        bitmap=bitmap_button_ext_desktop_my_machine_pcw_8256;
-    }
-
-
-    else if (MACHINE_IS_SMS) {
-        bitmap=bitmap_button_ext_desktop_my_machine_sms;
-    }
-
-    else if (MACHINE_IS_SG1000) {
-        bitmap=bitmap_button_ext_desktop_my_machine_sg1000;
-    }
-
-    else if (MACHINE_IS_COLECO) {
-        bitmap=bitmap_button_ext_desktop_my_machine_coleco;
-    }
-
-    else if (MACHINE_IS_MICRODIGITAL_TK90X || MACHINE_IS_MICRODIGITAL_TK90X_SPA) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk90x;
-    }
-
-    else if (MACHINE_IS_MICRODIGITAL_TK95 || MACHINE_IS_MICRODIGITAL_TK95_SPA) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tk95;
-    }
-
-
-    else if (MACHINE_IS_MSX) {
-        bitmap=bitmap_button_ext_desktop_my_machine_msx;
-    }
-
-    else if (MACHINE_IS_SVI_318) {
-        bitmap=bitmap_button_ext_desktop_my_machine_svi318;
-    }
-
-    else if (MACHINE_IS_SVI_328) {
-        bitmap=bitmap_button_ext_desktop_my_machine_svi328;
-    }
-
-    else if (MACHINE_IS_TIMEX_TS_TC_2068) {
-        bitmap=bitmap_button_ext_desktop_my_machine_timex_ts2068;
-    }
-
-    else if (MACHINE_IS_TIMEX_TC2048) {
-        bitmap=bitmap_button_ext_desktop_my_machine_timex_tc2048;
-    }
-
-    else if (MACHINE_IS_Z88) {
-        bitmap=bitmap_button_ext_desktop_my_machine_z88;
-    }
-
-    else if (MACHINE_IS_ZXUNO) {
-        bitmap=bitmap_button_ext_desktop_my_machine_zxuno;
-    }
-
-    else if (MACHINE_IS_TBBLUE) {
-        bitmap=bitmap_button_ext_desktop_my_machine_spectrum_next;
-    }
-
-    else if (MACHINE_IS_TSCONF) {
-        bitmap=bitmap_button_ext_desktop_my_machine_tsconf;
-    }
-
-    else if (MACHINE_IS_BASECONF) {
-        bitmap=bitmap_button_ext_desktop_my_machine_baseconf;
-    }
-
-    else if (MACHINE_IS_SAM) {
-        bitmap=bitmap_button_ext_desktop_my_machine_sam;
-    }
-
-    return bitmap;
-}
-
-*/
-
-//Retorna bitmap de una accion
-/*
-char **get_direct_function_icon_bitmap(int id_accion)
-{
-
-    return defined_direct_functions_array[id_accion].bitmap_button;
-}
-*/
 
 //Retorna bitmap de una accion, considerando tambien iconos dinamicos (papelera, my machine...)
 char **get_direct_function_icon_bitmap_final(int id_accion)
@@ -6562,6 +6379,87 @@ char **get_direct_function_icon_bitmap_final(int id_accion)
     return bitmap;
 }
 
+
+char **get_alternate_bitmap_for_configurable_icon(char *texto_bitmap)
+{
+
+    char **bitmap_unknown=bitmap_button_ext_desktop_nothing;
+
+
+    if (strlen(texto_bitmap)>2) {
+        //Si texto empieza por "w " es icono de ventana
+        //ejemplo "w toyzxeyes"
+        if ((texto_bitmap[0]=='w' || texto_bitmap[0]=='W') && texto_bitmap[1]==' ') {
+            //buscar ventana con ese icono
+            char **bitmap=zxvision_find_icon_for_known_window(&texto_bitmap[2]);
+            if (bitmap==NULL) return bitmap_unknown;
+            else return bitmap;
+        }
+
+        //si texto empieza por "b " es icono de boton
+        //ejemplo "b 3"
+        if ((texto_bitmap[0]=='b' || texto_bitmap[0]=='B') && texto_bitmap[1]==' ') {
+            int numero_boton=parse_string_to_number(&texto_bitmap[2]);
+
+            if (numero_boton<0 || numero_boton>EXT_DESKTOP_TOTAL_BUTTONS) return bitmap_unknown;
+            else return zxdesktop_buttons_bitmaps[numero_boton];
+        }
+
+        //si texto empieza por "o " son otros iconos
+        //ejemplo "o prueba"
+        if ((texto_bitmap[0]=='o' || texto_bitmap[0]=='O') && texto_bitmap[1]==' ') {
+
+            int i;
+            for (i=0;zxdesktop_other_icons_list[i].bitmap!=NULL;i++) {
+                if (!strcasecmp(&texto_bitmap[2],zxdesktop_other_icons_list[i].name)) {
+                    return zxdesktop_other_icons_list[i].bitmap;
+                }
+            }
+            return bitmap_unknown;
+        }
+
+        //si texto empieza por "m " son maquinas
+        //ejemplo "m inves"
+        if ((texto_bitmap[0]=='m' || texto_bitmap[0]=='M') && texto_bitmap[1]==' ') {
+            return get_machine_icon_by_name(&texto_bitmap[2]);
+        }
+
+
+
+        //si texto empieza por "d " es icono de dispositivo. le sigue al espacio un 0 o 1 (para elegir el dispositivo inactivo o activo) y el nombre
+        //ejemplo "d 1real_tape"
+        if (strlen(texto_bitmap)>3) {
+            if ((texto_bitmap[0]=='d' || texto_bitmap[0]=='D') && texto_bitmap[1]==' ') {
+
+                int activo=(texto_bitmap[2]=='1' ? 1 : 0);
+                int i;
+                for (i=0;i<TOTAL_ZXDESKTOP_MAX_LOWER_BUTTONS;i++) {
+                    if (!strcasecmp(&texto_bitmap[3],zdesktop_lowericons_array[i].device_name)) {
+                        if (activo) return zdesktop_lowericons_array[i].bitmap_active;
+                        else return zdesktop_lowericons_array[i].bitmap_inactive;
+                    }
+                }
+                return bitmap_unknown;
+            }
+        }
+
+    }
+
+    int indice=get_defined_direct_functions(texto_bitmap);
+
+    //Si no encontrado, bitmap de user defined
+    //TODO: quiza quedaria mejor un bitmap que diga error o not found o algo asi
+    if (indice<0) return bitmap_unknown;
+
+    else return defined_direct_functions_array[indice].bitmap_button;
+}
+
+void zxdesktop_configurable_icons_clear_cache_bitmap(int indice)
+{
+    zxdesktop_configurable_icons_list[indice].cached_bitmap=NULL;
+}
+
+
 void menu_ext_desktop_draw_configurable_icon(int index_icon,int pulsado)
 {
     int x,y;
@@ -6600,11 +6498,32 @@ void menu_ext_desktop_draw_configurable_icon(int index_icon,int pulsado)
     //Dibujar el icono
     //Si icono es OPEN_WINDOW, adoptar icono de la ventana que se va a abrir
     if (defined_direct_functions_array[id_accion].id_funcion==F_FUNCION_OPEN_WINDOW) {
-        char *geometry_name;
-        geometry_name=zxdesktop_configurable_icons_list[index_icon].extra_info;
-        char **possible_bitmap=zxvision_find_icon_for_known_window(geometry_name);
-        if (possible_bitmap!=NULL) bitmap=possible_bitmap;
+        //Si no esta cacheado
+        if (zxdesktop_configurable_icons_list[index_icon].cached_bitmap==NULL) {
+            //printf("No Cacheado\n");
+            char *geometry_name;
+            geometry_name=zxdesktop_configurable_icons_list[index_icon].extra_info;
+            char **possible_bitmap=zxvision_find_icon_for_known_window(geometry_name);
+            if (possible_bitmap!=NULL) bitmap=possible_bitmap;
+        }
+        else {
+            //printf("Cacheado\n");
+            bitmap=zxdesktop_configurable_icons_list[index_icon].cached_bitmap;
+        }
     }
+
+    //Bitmap alternativo para un icono
+    if (zxdesktop_configurable_icons_list[index_icon].alternate_bitmap[0]) {
+        if (zxdesktop_configurable_icons_list[index_icon].cached_bitmap==NULL) {
+            //printf("No Cacheado\n");
+            bitmap=get_alternate_bitmap_for_configurable_icon(zxdesktop_configurable_icons_list[index_icon].alternate_bitmap);
+        }
+        else {
+            //printf("Cacheado\n");
+            bitmap=zxdesktop_configurable_icons_list[index_icon].cached_bitmap;
+        }
+    }
+
 
     //Si icono es F_FUNCION_SET_MACHINE y tiene parametro de set machine, dibujamos el icono de la maquina y luego la "flechita"
     //De tal manera que estamos dibujando un icono sobre el otro. Este es el unico caso de momento que hago eso
@@ -6628,9 +6547,7 @@ void menu_ext_desktop_draw_configurable_icon(int index_icon,int pulsado)
     }
 
 
-    //temp
-    //Primer pixel en negro
-    //bitmap[0][0]='x';
+    zxdesktop_configurable_icons_list[index_icon].cached_bitmap=bitmap;
 
     menu_draw_ext_desktop_one_icon(x,y,bitmap);
 
@@ -6710,11 +6627,23 @@ void menu_ext_desktop_draw_configurable_icon(int index_icon,int pulsado)
     menu_draw_ext_desktop_one_icon_text(x,y_texto_icono,texto_mostrado);
 }
 
+
+long draw_zxdesktop_icons_media_suma=0;
+
+int draw_zxdesktop_icons_media_suma_medidas=0;
+
+long draw_zxdesktop_icons_media=0;
+
 //Dibujar los iconos configurables por el usuario
 void menu_draw_ext_desktop_configurable_icons(void)
 {
 
     if (!zxdesktop_configurable_icons_enabled_and_visible()) return;
+
+    //Sonda de tiempo para saber cuanto tarda en ejecutarse esto
+    struct timeval draw_zxdesktop_icons_antes,draw_zxdesktop_icons_despues;
+
+    timer_stats_current_time(&draw_zxdesktop_icons_antes);
 
     int i;
 
@@ -6725,6 +6654,27 @@ void menu_draw_ext_desktop_configurable_icons(void)
             menu_ext_desktop_draw_configurable_icon(i,0);
         }
     }
+
+    long difftime;
+
+    difftime=timer_stats_diference_time(&draw_zxdesktop_icons_antes,&draw_zxdesktop_icons_despues);
+
+    //media de tiempo
+    draw_zxdesktop_icons_media_suma +=difftime;
+    draw_zxdesktop_icons_media_suma_medidas++;
+
+    long media;
+
+    if (draw_zxdesktop_icons_media_suma_medidas!=0) {
+        media=draw_zxdesktop_icons_media_suma/draw_zxdesktop_icons_media_suma_medidas;
+    }
+    else {
+        media=0;
+    }
+
+    draw_zxdesktop_icons_media=media;
+
+    //printf("difftime: %ld media: %ld microsegundos\n",difftime,media);
 }
 
 
@@ -11135,6 +11085,16 @@ int zxvision_find_known_window(char *nombre)
 
     }
     return -1;
+}
+
+int zxvision_count_known_windows(void)
+{
+    int i;
+
+
+    for (i=0;zxvision_known_window_names_array[i].start!=NULL;i++);
+
+    return i;
 }
 
 //Retorna posicion a indice de zxvision_known_window_names_array si es valido

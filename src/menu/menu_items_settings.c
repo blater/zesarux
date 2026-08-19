@@ -15249,6 +15249,8 @@ void menu_zxdesktop_add_configurable_icons(MENU_ITEM_PARAMETERS)
                 zxdesktop_configurable_icons_list[indice_icono].extra_info,
                 zxdesktop_configurable_icons_list[indice_icono].text_icon);
 
+            zxdesktop_configurable_icons_clear_cache_bitmap(indice_icono);
+
         }
     }
 }
@@ -15277,6 +15279,10 @@ void menu_zxdesktop_set_configurable_icons_choose(MENU_ITEM_PARAMETERS)
 
         //Resetear parametros para no heredar parametros de accion anterior
         zxdesktop_configurable_icons_list[icono_seleccionado].extra_info[0]=0;
+
+        zxdesktop_configurable_icons_list[icono_seleccionado].alternate_bitmap[0]=0;
+
+        zxdesktop_configurable_icons_clear_cache_bitmap(icono_seleccionado);
 
         //Si ya existia, conservar posicion. Si no, poner una nueva
         if (zxdesktop_configurable_icons_list[icono_seleccionado].status==ZXDESKTOP_CUSTOM_ICON_NOT_EXISTS) {
@@ -15309,7 +15315,420 @@ void menu_zxdesktop_set_configurable_icons_rename(MENU_ITEM_PARAMETERS)
 void menu_zxdesktop_set_configurable_icons_change_parameters(MENU_ITEM_PARAMETERS)
 {
     menu_ventana_scanf("Parameters",zxdesktop_configurable_icons_list[valor_opcion].extra_info,PATH_MAX);
+    zxdesktop_configurable_icons_clear_cache_bitmap(valor_opcion);
 }
+
+
+
+
+
+zxvision_window menu_zxdesktop_set_alternate_bitmap_icon_ventana;
+
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA 0
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_ACCION 1
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_VENTANA 2
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_DISPOSITIVOS 3
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_BOTON 4
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_MAQUINAS 5
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_OTROS 6
+
+
+
+int menu_zxdesktop_set_alternate_bitmap_icon_overlay_tipo_opcion=0;
+int menu_zxdesktop_set_alternate_bitmap_icon_overlay_indice_opcion=0;
+
+void menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada(struct s_menu_item *m)
+{
+    int tipo_opcion=(m->valor_opcion) & 0xFF;
+    int indice_opcion=(m->valor_opcion) >> 8;
+    //printf("%s tipo: %d indice: %d\n",m->texto_opcion,tipo_opcion,indice_opcion);
+
+    //Pasamos estos parametros a variables globales para que las pueda leer la funcion de overlay
+    menu_zxdesktop_set_alternate_bitmap_icon_overlay_tipo_opcion=tipo_opcion;
+    menu_zxdesktop_set_alternate_bitmap_icon_overlay_indice_opcion=indice_opcion;
+
+}
+
+//Para hacer un preview del boton
+void menu_zxdesktop_set_alternate_bitmap_icon_putpixel(z80_int *destino GCC_UNUSED,int x,int y,int ancho GCC_UNUSED,int alto GCC_UNUSED,int color)
+{
+    zxvision_putpixel(&menu_zxdesktop_set_alternate_bitmap_icon_ventana,x,y,color);
+}
+
+
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_ANCHO_VENTANA 29
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_ALTO_VENTANA 20
+
+//Ubicar el boton hacia la derecha de la ventana
+#define ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_OFFSET_BUTTON (ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_ANCHO_VENTANA-(ZESARUX_ASCII_LOGO_ANCHO/menu_char_width)-2)
+
+
+
+void menu_zxdesktop_set_alternate_bitmap_icon_overlay(void)
+{
+
+
+    zxvision_window *ventana;
+    ventana=&menu_zxdesktop_set_alternate_bitmap_icon_ventana;
+
+
+
+
+    menu_speech_set_tecla_pulsada(); //Si no, envia continuamente todo ese texto a speech
+
+    //si ventana minimizada, no ejecutar todo el codigo de overlay
+    if (ventana->is_minimized) return;
+
+
+    char **puntero_bitmap=NULL;
+
+    int indice_opcion=menu_zxdesktop_set_alternate_bitmap_icon_overlay_indice_opcion;
+    int tipo_opcion=menu_zxdesktop_set_alternate_bitmap_icon_overlay_tipo_opcion;
+
+    //Acciones
+    if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_ACCION) {
+        puntero_bitmap=defined_direct_functions_array[indice_opcion].bitmap_button;
+        puntero_bitmap=alter_zesarux_ascii_logo(puntero_bitmap);
+    }
+
+    //Ventanas
+    if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_VENTANA) {
+        puntero_bitmap=zxvision_known_window_names_array[indice_opcion].bitmap_button;
+    }
+
+    //Dispositivos
+    if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_DISPOSITIVOS) {
+        int indice_device=indice_opcion/2;
+        int device_activo=0;
+        if (indice_opcion %2) device_activo=1;
+
+        if (device_activo) puntero_bitmap=zdesktop_lowericons_array[indice_device].bitmap_active;
+        else puntero_bitmap=zdesktop_lowericons_array[indice_device].bitmap_inactive;
+    }
+
+    //Botones
+    if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_BOTON) {
+        puntero_bitmap=zxdesktop_buttons_bitmaps[indice_opcion];
+    }
+
+    //Otros
+    if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_OTROS) {
+        puntero_bitmap=zxdesktop_other_icons_list[indice_opcion].bitmap;
+    }
+
+    if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_MAQUINAS) {
+        puntero_bitmap=machines_short_names_id[indice_opcion].bitmap;
+    }
+
+
+    if (puntero_bitmap!=NULL) {
+
+        int offset_x=ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_OFFSET_BUTTON*menu_char_width;
+        int offset_y=ventana->offset_y;
+
+        //Desplazar putpixel segun el offset de scroll
+        offset_y *=menu_char_height;
+
+        //Primero poner todo el fondo del botón en color blanco
+        int x,y;
+
+        for (x=0;x<ZESARUX_ASCII_LOGO_ANCHO;x++) {
+            for (y=0;y<ZESARUX_ASCII_LOGO_ALTO;y++) {
+                zxvision_putpixel(ventana,offset_x+x,offset_y+y,7);
+            }
+        }
+
+        //Y dibujar dicho botón
+        int nivel_zoom=1;
+        screen_put_asciibitmap_generic(puntero_bitmap,NULL,offset_x,offset_y,ZESARUX_ASCII_LOGO_ANCHO,ZESARUX_ASCII_LOGO_ALTO,
+            0,0,menu_zxdesktop_set_alternate_bitmap_icon_putpixel,nivel_zoom,0,1);
+    }
+
+    //Siempre hará el dibujado de contenido para evitar que cuando esta en background, otra ventana por debajo escriba algo,
+    //y entonces como esta no redibuja siempre, al no escribir encima, se sobreescribe este contenido con el de otra ventana
+    //En ventanas que no escriben siempre su contenido, siempre deberia estar zxvision_draw_window_contents que lo haga siempre
+    zxvision_draw_window_contents(ventana);
+}
+
+
+int menu_zxdesktop_set_alternate_bitmap_icon(int accion_inicial_seleccionada)
+{
+
+    int alto_ventana=ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_ALTO_VENTANA;
+    int ancho_ventana=ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_ANCHO_VENTANA;
+
+    int x_ventana=menu_center_x()-ancho_ventana/2;
+    int y_ventana=menu_center_y()-alto_ventana/2;
+
+
+    //En este caso creamos un menu tabulado porque necesitamos crear nosotros la ventana antes para
+    //poderla hacer mas ancha para ubicar el dibujo del boton seleccionado
+    zxvision_window *ventana;
+
+    ventana=&menu_zxdesktop_set_alternate_bitmap_icon_ventana;
+
+    int total_alto=MAX_F_FUNCTIONS+zxvision_count_known_windows()+TOTAL_ZXDESKTOP_MAX_LOWER_BUTTONS*2+EXT_DESKTOP_TOTAL_BUTTONS+zxdesktop_other_icons_count_list()+count_total_machine_id();
+
+    //printf("total_alto %d\n",total_alto);
+
+    //Separadores
+    total_alto +=6*2;
+
+    //Item ESC
+    total_alto ++;
+
+    zxvision_new_window(ventana,x_ventana,y_ventana,ancho_ventana,alto_ventana,
+                            ancho_ventana-1,total_alto,"Set Bitmap");
+
+    //Decir que siempre hay que borrar cache al refrescar, especial en el caso de accion por defecto y que no tiene dibujo
+    ventana->must_clear_cache_on_draw=1;
+    zxvision_draw_window(ventana);
+
+
+
+    int opcion_seleccionada=0;
+
+
+    //cambio overlay
+    zxvision_set_window_overlay(ventana,menu_zxdesktop_set_alternate_bitmap_icon_overlay);
+
+    menu_item *array_menu_common;
+    menu_item item_seleccionado;
+    int retorno_menu;
+
+    char buffer_texto[MAX_NAME_WINDOW_GEOMETRY]; //Este MAX_NAME_WINDOW_GEOMETRY es el nombre mas grande de todos los usados
+
+    int linea=0;
+
+     //Acciones
+    menu_add_item_menu_inicial_format(&array_menu_common,MENU_OPCION_SEPARADOR,NULL,NULL,"--- Actions ---");
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    int i;
+
+
+    for (i=0;i<MAX_F_FUNCTIONS;i++) {
+
+        sprintf (buffer_texto,"%s",defined_direct_functions_array[i].texto_funcion);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_ACCION+256*i);
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+        menu_add_item_menu_tooltip(array_menu_common,defined_direct_functions_array[i].texto_tooltip);
+    }
+
+    //Ventanas
+    menu_add_item_menu_separator(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    menu_add_item_menu_format(array_menu_common,MENU_OPCION_SEPARADOR,NULL,NULL,"--- Windows ---");
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+
+    for (i=0;zxvision_known_window_names_array[i].start!=NULL;i++) {
+        sprintf (buffer_texto,"%s",zxvision_known_window_names_array[i].nombre);
+        //printf("Agregando ventana %s\n",buffer_texto);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_VENTANA+256*i);
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+    }
+
+
+    //Dispositivos
+    menu_add_item_menu_separator(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    menu_add_item_menu_format(array_menu_common,MENU_OPCION_SEPARADOR,NULL,NULL,"--- Devices ---");
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+
+    for (i=0;i<TOTAL_ZXDESKTOP_MAX_LOWER_BUTTONS;i++) {
+        sprintf (buffer_texto,"%s inactive",zdesktop_lowericons_array[i].device_name);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        //i*2 porque el valor par es device inactivo, el impar el activo
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_DISPOSITIVOS+256*(i*2));
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+        sprintf (buffer_texto,"%s active",zdesktop_lowericons_array[i].device_name);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        //i*2 porque el valor par es device inactivo, el impar el activo
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_DISPOSITIVOS+256*(i*2+1));
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    }
+
+    //Botones
+    menu_add_item_menu_separator(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    menu_add_item_menu_format(array_menu_common,MENU_OPCION_SEPARADOR,NULL,NULL,"--- Buttons ---");
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+
+    for (i=0;i<EXT_DESKTOP_TOTAL_BUTTONS;i++) {
+        sprintf (buffer_texto,"Button %d",i);
+        //printf("Agregando ventana %s\n",buffer_texto);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_BOTON+256*i);
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+    }
+
+
+
+    //Maquinas
+    menu_add_item_menu_separator(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    menu_add_item_menu_format(array_menu_common,MENU_OPCION_SEPARADOR,NULL,NULL,"--- Machines ---");
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    i=0;
+
+    while (machines_short_names_id[i].machine_id>=0) {
+        sprintf (buffer_texto,"%s",machines_short_names_id[i].machine_name);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_MAQUINAS+256*i);
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+        i++;
+    }
+
+    //Otros
+    menu_add_item_menu_separator(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    menu_add_item_menu_format(array_menu_common,MENU_OPCION_SEPARADOR,NULL,NULL,"--- Others ---");
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+
+    for (i=0;zxdesktop_other_icons_list[i].bitmap!=NULL;i++) {
+        sprintf (buffer_texto,"%s",zxdesktop_other_icons_list[i].name);
+        menu_add_item_menu_format(array_menu_common,MENU_OPCION_NORMAL,NULL,NULL,buffer_texto);
+        menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+        menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_OTROS+256*i);
+        menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+    }
+
+
+    menu_add_item_menu_separator(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+    menu_add_ESC_item(array_menu_common);
+    menu_add_item_menu_valor_opcion(array_menu_common,ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_NADA);
+    menu_add_item_menu_seleccionado(array_menu_common,menu_zxdesktop_set_alternate_bitmap_funcion_seleccionada);
+    menu_add_item_menu_tabulado(array_menu_common,1,linea++);
+
+
+    retorno_menu=menu_dibuja_menu_no_title_lang(&opcion_seleccionada,&item_seleccionado,array_menu_common,"Set Bitmap" );
+
+    //restauramos modo normal de texto de menu
+
+
+    //En caso de menus tabulados, suele ser necesario esto. Si no, la ventana se quedaria visible
+
+
+    //Asumimos que se pulsa ESC
+    int valor_retorno=-1;
+
+
+    if ((item_seleccionado.tipo_opcion&MENU_OPCION_ESC)==0 && retorno_menu>=0) {
+        //Si se pulsa Enter
+        valor_retorno=item_seleccionado.valor_opcion;
+
+    }
+
+
+    //En caso de menus tabulados, es responsabilidad de este de liberar ventana
+    zxvision_destroy_window(ventana);
+
+    return valor_retorno;
+
+}
+
+
+void menu_zxdesktop_set_configurable_icons_change_alternate_bitmap(MENU_ITEM_PARAMETERS)
+{
+    //menu_ventana_scanf("Bitmap",zxdesktop_configurable_icons_list[valor_opcion].alternate_bitmap,ALTERNATE_BITMAP_NAME_LENGTH);
+    int valor_retorno=menu_zxdesktop_set_alternate_bitmap_icon(0);
+
+    //Quiza retornar:
+    //entre 0-999 bitmaps de acciones
+    //entre 0-999 bitmaps de ventanas
+    //entre 0-999 bitmaps de devices
+    //entre 0-999 bitmaps de botones
+    //entre 0-999 bitmaps de otros
+    //O tambien quiza que menu_zxdesktop_set_alternate_bitmap_icon retorne tal cual la string adecuada
+    //segun parametro de menu item si 0 es accion, 1 ventana, 2 devices etc
+    //Ese mismo parametro servira a la funcion de overlay para saber que redibujar
+
+    char alternate_bitmap_string[ALTERNATE_BITMAP_NAME_LENGTH]="";
+
+    if (valor_retorno>=0) {
+
+        int tipo_opcion=(valor_retorno) & 0xFF;
+        int indice_opcion=(valor_retorno) >> 8;
+
+        //Acciones
+        if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_ACCION) {
+            strcpy(alternate_bitmap_string,defined_direct_functions_array[indice_opcion].texto_funcion);
+        }
+
+        //Ventanas
+        if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_VENTANA) {
+            sprintf(alternate_bitmap_string,"w %s",zxvision_known_window_names_array[indice_opcion].nombre);
+        }
+
+        //Dispositivos
+        if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_DISPOSITIVOS) {
+            int indice_device=indice_opcion/2;
+            int device_activo=0;
+            if (indice_opcion %2) device_activo=1;
+
+            sprintf(alternate_bitmap_string,"d %d%s",device_activo,zdesktop_lowericons_array[indice_device].device_name);
+        }
+
+        //Botones
+        if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_BOTON) {
+            sprintf(alternate_bitmap_string,"b %d",indice_opcion);
+        }
+
+        //Otros
+        if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_OTROS) {
+            sprintf(alternate_bitmap_string,"o %s",zxdesktop_other_icons_list[indice_opcion].name);
+        }
+
+        //Maquinas
+        if (tipo_opcion==ZXDESKTOP_DEFINE_ALTERNATE_BITMAP_TIPO_OPCION_MAQUINAS) {
+            sprintf(alternate_bitmap_string,"m %s",machines_short_names_id[indice_opcion].machine_name);
+        }
+
+        if (alternate_bitmap_string[0]) strcpy(zxdesktop_configurable_icons_list[valor_opcion].alternate_bitmap,alternate_bitmap_string);
+
+    }
+
+
+    zxdesktop_configurable_icons_clear_cache_bitmap(valor_opcion);
+}
+
+
 
 void menu_zxdesktop_set_configurable_icons_move_trash(MENU_ITEM_PARAMETERS)
 {
@@ -15371,6 +15790,11 @@ void menu_zxdesktop_set_configurable_icons_modify(MENU_ITEM_PARAMETERS)
             "~~Parameters","~~Parámetros","~~Paràmetres");
         menu_add_item_menu_valor_opcion(array_menu_common,valor_opcion);
         menu_add_item_menu_shortcut(array_menu_common,'p');
+
+        menu_add_item_menu_en_es_ca(array_menu_common,MENU_OPCION_NORMAL,menu_zxdesktop_set_configurable_icons_change_alternate_bitmap,NULL,
+            "Change ~~Bitmap","Cambiar ~~Bitmap","Canviar ~~Bitmap");
+        menu_add_item_menu_valor_opcion(array_menu_common,valor_opcion);
+        menu_add_item_menu_shortcut(array_menu_common,'b');
 
 
         menu_add_item_menu_en_es_ca(array_menu_common,MENU_OPCION_NORMAL,menu_zxdesktop_set_configurable_icons_move_trash,NULL,

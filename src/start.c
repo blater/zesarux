@@ -1957,6 +1957,17 @@ printf("\n"
         printf (
         "\n\n"
 
+        "--zxdesktop-append-icon x y a n e s b          Add icon to position x,y, to action a, icon name n, extra parameters e, status s, alternate bitmap b. "
+          "Icon name, extra parameters and alternate bitmap are mandatory, so if they are blank, just write it as \"\". status can be: exists or deleted. Action must be one of: ");
+
+
+        print_defined_direct_functions();
+
+
+        printf (
+        "\n\n"
+
+
         "--def-button-function button action    Define Button to do an action. Action must be one of: ");
 
 
@@ -3884,7 +3895,14 @@ int parse_cmdline_options(int desde_commandline)
                 }
             }
 
-            else if (!strcmp(argv[puntero_parametro],"--zxdesktop-add-icon")) {
+            //Soportar los dos parametros con extra de alternate bitmap o no
+            else if (!strcmp(argv[puntero_parametro],"--zxdesktop-add-icon") ||
+                    !strcmp(argv[puntero_parametro],"--zxdesktop-append-icon")
+
+                ) {
+                int es_append_icon=0;
+                if (!strcmp(argv[puntero_parametro],"--zxdesktop-append-icon")) es_append_icon=1;
+
                 //get_defined_direct_functions
                 //"--zxdesktop-add-icon x y a n e s                  Add icon to position x,y, to function f, icon name n, extra parameters e, status s\n"
                 siguiente_parametro_argumento();
@@ -3903,6 +3921,15 @@ int parse_cmdline_options(int desde_commandline)
                 char *extra_info=argv[puntero_parametro];
                 siguiente_parametro_argumento();
 
+                char *icon_status=argv[puntero_parametro];
+
+                char *alternate_bitmap=NULL;
+
+                if (es_append_icon) {
+                    siguiente_parametro_argumento();
+                    alternate_bitmap=argv[puntero_parametro];
+                }
+
                 //Si accion no reconocida, mostrar error y seguir
                 //Esto permite compatibilidad hacia atrás por si se ejecuta una versión de ZEsarUX con una config de versión
                 //superior con acciones nuevas
@@ -3916,16 +3943,16 @@ int parse_cmdline_options(int desde_commandline)
 
                     int error=0;
 
-                    if (!strcasecmp("exists",argv[puntero_parametro])) {
+                    if (!strcasecmp("exists",icon_status)) {
                         status=ZXDESKTOP_CUSTOM_ICON_EXISTS;
                     }
 
-                    else if (!strcasecmp("deleted",argv[puntero_parametro])) {
+                    else if (!strcasecmp("deleted",icon_status)) {
                         status=ZXDESKTOP_CUSTOM_ICON_DELETED;
                     }
 
                     else {
-                        debug_printf(VERBOSE_ERR,"Invalid icon status %s",argv[puntero_parametro]);
+                        debug_printf(VERBOSE_ERR,"Invalid icon status %s",icon_status);
                         error=1;
                     }
 
@@ -3944,14 +3971,15 @@ int parse_cmdline_options(int desde_commandline)
 
                             zxvision_set_configurable_icon_text(indice_icono,text_icon);
                             zxvision_set_configurable_icon_extra_info(indice_icono,extra_info);
+                            if (es_append_icon) {
+                                zxvision_set_configurable_icon_alternate_bitmap(indice_icono,alternate_bitmap);
+                            }
 
                             zxdesktop_configurable_icons_list[indice_icono].status=status;
                         }
                     }
 
                 }
-
-
             }
 
             else if (!strcmp(argv[puntero_parametro],"--watermark-position")) {

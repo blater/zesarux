@@ -589,6 +589,7 @@ extern char **zxvision_find_icon_for_known_window(char *nombre);
 extern int zxvision_known_window_is_valid_by_index(int indice);
 
 extern int zxvision_find_known_window(char *nombre);
+extern int zxvision_count_known_windows(void);
 
 extern int total_restore_window_array_elements;
 
@@ -825,6 +826,9 @@ enum zxdesktop_custom_icon_status_ids {
 
 extern void print_defined_direct_functions(void);
 
+//Texto para indicar bitmap alternativo de un icono, MAX_NAME_WINDOW_GEOMETRY es la longitud mayor
+#define ALTERNATE_BITMAP_NAME_LENGTH (MAX_NAME_WINDOW_GEOMETRY)
+
 //Identifica a un icono del escritorio
 struct s_zxdesktop_configurable_icon {
     enum zxdesktop_custom_icon_status_ids status; //Existe, no existe, o borrado
@@ -840,6 +844,11 @@ struct s_zxdesktop_configurable_icon {
 
     //Por ejemplo para guardar información de la ruta a un snapshot en la funcion de F_FUNCION_DIRECT_SNAPSHOT
     char extra_info[PATH_MAX];
+
+    char alternate_bitmap[ALTERNATE_BITMAP_NAME_LENGTH];
+
+    //bitmap final que se usa, para cachearlo y acelerar el dibujado, usado por ejemplo con iconos tipo openwindow o con alternate bitmap
+    char **cached_bitmap;
 
 };
 
@@ -1630,12 +1639,15 @@ extern z80_bit menu_pressed_close_all_menus;
 extern z80_bit menu_pressed_open_menu_while_in_menu;
 extern z80_bit menu_pressed_f9_with_menu_open;
 
+extern long draw_zxdesktop_icons_media;
+
 extern void init_zxdesktop_configurable_icons(void);
 extern void create_default_zxdesktop_configurable_icons(void);
 extern void zxvision_reorder_configurable_icons(void);
 extern void zxvision_reorder_configurable_icons_if_auto(void);
 extern void zxvision_set_configurable_icon_position(int icon,int x,int y);
 extern void zxvision_if_configurable_icon_not_on_valid_position_set(int icon);
+extern void zxdesktop_configurable_icons_clear_cache_bitmap(int indice);
 extern void zxvision_recover_configurable_icon_from_trash(int indice_icono);
 extern void zxvision_empty_trash(void);
 extern void zxvision_move_configurable_icon_to_trash(int indice_icono);
@@ -1649,6 +1661,7 @@ extern void zxvision_check_all_configurable_icons_positions(void);
 extern int zxvision_add_configurable_icon_no_add_position(int indice_funcion);
 extern void zxvision_set_configurable_icon_text(int indice_icono,char *texto);
 extern void zxvision_set_configurable_icon_extra_info(int indice_icono,char *extra_info);
+extern void zxvision_set_configurable_icon_alternate_bitmap(int indice_icono,char *alternate_bitmap);
 extern int zxdesktop_configurable_icons_enabled_and_visible(void);
 extern void zxvision_create_configurable_icon(enum defined_f_function_ids id_funcion,char *nombre,char *extra_info);
 extern void zxvision_create_configurable_icon_file_type(enum defined_f_function_ids id_funcion,char *nombre);
@@ -1992,7 +2005,13 @@ enum tooltips_menus_inicio_storage {
     TOOLTIP_QL_EXTERNAL_ROM
 };
 
+
+#define DEVICE_NAME_MAX_LENGHT 30
+
 struct s_zxdesktop_lowericons_info {
+    //usado de momento para alternate bitmaps
+    //nombre sin espacios
+    char device_name[DEVICE_NAME_MAX_LENGHT];
     int (*is_visible)(void);
     int (*is_active)(void);
     void (*accion)(void);

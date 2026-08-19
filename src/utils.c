@@ -4602,7 +4602,7 @@ int util_write_configfile(void)
                 int indice_funcion=zxdesktop_configurable_icons_list[i].indice_funcion;
                 strcpy(texto_funcion,defined_direct_functions_array[indice_funcion].texto_funcion);
 
-                //--zxdesktop-add-icon x y a n e s    Add icon to position x,y, to function f, icon name n, extra parameters e, status s
+                //"--zxdesktop-append-icon x y a n e s b          Add icon to position x,y, to action a, icon name n, extra parameters e, status s, alternate bitmap b. "
                 //Si opcion de vaciar papelera al salir, significa no grabar items que esten borrados
 
                 int saveicon=1;
@@ -4613,10 +4613,10 @@ int util_write_configfile(void)
 
                 if (saveicon) {
 
-                    ADD_STRING_CONFIG,"--zxdesktop-add-icon %d %d \"%s\" \"%s\" \"%s\" \"%s\"",
+                    ADD_STRING_CONFIG,"--zxdesktop-append-icon %d %d \"%s\" \"%s\" \"%s\" \"%s\" \"%s\"",
                         zxdesktop_configurable_icons_list[i].pos_x,zxdesktop_configurable_icons_list[i].pos_y,
                         texto_funcion,zxdesktop_configurable_icons_list[i].text_icon,zxdesktop_configurable_icons_list[i].extra_info,
-                        buffer_status);
+                        buffer_status,zxdesktop_configurable_icons_list[i].alternate_bitmap);
 
                 }
             }
@@ -13968,12 +13968,7 @@ void customconfig_help(void)
     );
 }
 
-//Nombres cortos de maquinas y sus id y su icono
-struct s_machines_short_names_id {
-        char machine_name[32];
-        int machine_id;
-        char **bitmap;
-};
+
 
 //Finaliza con machine_id -1
 struct s_machines_short_names_id machines_short_names_id[]={
@@ -14075,6 +14070,20 @@ int get_machine_id_by_name(char *machine_name)
         //no encontrado
         debug_printf (VERBOSE_ERR,"Unknown machine %s",machine_name);
         return -1;
+
+}
+
+//Devuelve -1 si desconocida
+int count_total_machine_id(void)
+{
+
+    int i=0;
+
+    while (machines_short_names_id[i].machine_id>=0) {
+            i++;
+    }
+
+    return i;
 
 }
 

@@ -19,6 +19,9 @@
 
 */
 
+#include <stdio.h>
+
+
 #include "menu_bitmaps.h"
 #include "settings.h"
 
@@ -8069,3 +8072,206 @@ char *bitmap_button_ext_desktop_userdefined[EXT_DESKTOP_BUTTONS_ANCHO]={
     "                          ",
     "                          " 	 //25
 };
+
+
+struct s_zxdesktop_other_icons zxdesktop_other_icons_list[]={
+    {"sadmac",bitmap_button_ext_desktop_other_sad_mac},
+    {"clive",bitmap_button_ext_desktop_other_clive},
+    {"sadclive",bitmap_button_ext_desktop_other_clive_sad},
+    {"surprisedclive",bitmap_button_ext_desktop_other_clive_surprised},
+    {"laughclive",bitmap_button_ext_desktop_other_clive_laugh},
+    {"",NULL} //Siempre finalizar asi
+};
+
+
+char *bitmap_button_ext_desktop_other_sad_mac[EXT_DESKTOP_BUTTONS_ANCHO]={
+    //01234567890123456789012345
+    "     xxxxxxxxxxxxxxxx     ",
+    "    xWWWWWWWWWWWWWWWWx    ",
+    "   xWWWWWWWWWWWWWWWWWWx   ",
+    "   xWWWxxxxxxxxxxxxWWWx   ",
+    "   xWWxWWWWWWWWWWWWxWWx   ",
+    "   xWWxWxWxWWWWxWxWxWWx   ",
+    "   xWWxWWxWWWWWWxWWxWWx   ",
+    "   xWWxWxWxWWWWxWxWxWWx   ",
+    "   xWWxWWWWWWWWWWWWxWWx   ",
+    "   xWWxWWWWxWWxWWWWxWWx   ",
+    "   xWWxWWWWWxxWWWWWxWWx   ", //10
+    "   xWWxWWWWWWWWWWWWxWWx   ",
+    "   xWWxWWWxxxxWWWWWxWWx   ",
+    "   xWWxWWxWWWWxxWWWxWWx   ",
+    "   xWWxWWWWWWWWWWWWxWWx   ",
+    "   xWWWxxxxxxxxxxxxWWWx   ",
+    "   xWWWWWWWWWWWWWWWWWWx   ",
+    "   xWWWWWWWWWWWWWWWWWWx   ",
+    "   xWWWWWWWWWWWWWWWWWWx   ",
+    "   xWWWWWWWWWWxxxxxWWWx   ",
+    "   xWWxxWWWWWWWWWWWWWWx   ",//20
+    "   xWWWWWWWWWWWWWWWWWWx   ",
+    "    xxxxxxxxxxxxxxxxxx    ",
+    "    xWWWWWWWWWWWWWWWWx    ",
+    "    xWWWWWWWWWWWWWWWWx    ",
+    "    xxxxxxxxxxxxxxxxxx    "//25
+};
+
+
+char *bitmap_button_ext_desktop_old_other_clive[EXT_DESKTOP_BUTTONS_ANCHO]={
+    //01234567890123456789012345
+    "                          ",     //0
+    "                          ",
+    "                          ",
+    "                          ",
+    "                          ",
+    "                          ",
+    "         xxxxxx           ",
+    "       xx      xx         ",
+    "      x          x        ",
+    "      x          x        ",
+    "      x          x        ",
+    "     x xxxx xxxx xx       ",	//10
+    "    x x    x    x  x      ",
+    "    x xxxx xxxx x  x      ",
+    "    x  xxxx xxxxx  x      ",
+    "     x            x       ",
+    "      x    xx    x        ",
+    "      x  xxxxxx  x        ",
+    "      xxxx    xxxx        ",
+    "       xxxxxxxxxx         ",
+    "          xxxx            ",
+    "                          ",    //20
+    "                          ",
+
+    "                          ",
+    "                          ",
+    "                          " 	 //25
+};
+
+char *bitmap_button_ext_desktop_other_clive[EXT_DESKTOP_BUTTONS_ANCHO]={
+    //01234567890123456789012345
+    "         xxxxxxx          ",     //0
+    "       xx       xx        ",
+    "      x           x       ",
+    "     x    x        x      ",
+    "    xr       x     rx     ",
+    "    xr             rx     ",
+    "    xr      x      rx     ",
+    "    xr             rx     ",
+    "    xr             rx     ",
+    "   xr  xxxx   xxxx  rx    ",
+    "  x   xWWWWx xWWWWx   x   ",	//10
+    "  x   xWWWWx xWWWWx   x   ",
+    "  x   xWWWWx xWWWWx   x   ",
+    "  x   xxxxWx xxxxWx   x   ",
+    "   xr  xxxx x xxxx  rx    ",
+    "    xr      x      rx     ",
+    "    xr      xx     rx     ",
+    "    xr             rx     ",
+    "    xr     rrr     rx     ",
+    "    xr  rrrrrrrrr  rx     ",
+    "    xrrrrWrrrrrWrrrrx     ",    //20
+    "    xrrrrrWWWWWrrrrrx     ",
+    "    xrrrrrrrrrrrrrrrx     ",
+    "     xrrrrrrrrrrrrrx      ",
+    "      xxrrrrrrrrrxx       ",
+    "        xxxxxxxxx         " 	 //25
+};
+
+char *bitmap_button_ext_desktop_other_clive_sad[EXT_DESKTOP_BUTTONS_ANCHO]={
+    //01234567890123456789012345
+    "         xxxxxxx          ",     //0
+    "       xx       xx        ",
+    "      x           x       ",
+    "     x    x        x      ",
+    "    xr       x     rx     ",
+    "    xr             rx     ",
+    "    xr      x      rx     ",
+    "    xr             rx     ",
+    "    xr             rx     ",
+    "   xr  xxxx   xxxx  rx    ",
+    "  x   xWWWWx xWWWWx   x   ",	//10
+    "  x   xWWWWx xWWWWx   x   ",
+    "  x   xWWWWx xWWWWx   x   ",
+    "  x   xxxxWx xxxxWx   x   ",
+    "   xr  xxxx x xxxx  rx    ",
+    "    xr      x      rx     ",
+    "    xr      xx     rx     ",
+    "    xr             rx     ",
+    "    xr     rrr     rx     ",
+    "    xr  rrrrrrrrr  rx     ",
+    "    xrrrrrrrrrrrrrrrx     ",    //20
+    "    xrrrrrWWWWWrrrrrx     ",
+    "    xrrrrWrrrrrWrrrrx     ",
+    "     xrrrrrrrrrrrrrx      ",
+    "      xxrrrrrrrrrxx       ",
+    "        xxxxxxxxx         " 	 //25
+};
+
+char *bitmap_button_ext_desktop_other_clive_surprised[EXT_DESKTOP_BUTTONS_ANCHO]={
+    //01234567890123456789012345
+    "         xxxxxxx          ",     //0
+    "       xx       xx        ",
+    "      x           x       ",
+    "     x    x        x      ",
+    "    xr       x     rx     ",
+    "    xr             rx     ",
+    "    xr      x      rx     ",
+    "    xr             rx     ",
+    "    xr             rx     ",
+    "   xr  xxxx   xxxx  rx    ",
+    "  x   xWWWWx xWWWWx   x   ",	//10
+    "  x   xWxxWx xWxxWx   x   ",
+    "  x   xWxxWx xWxxWx   x   ",
+    "  x   xWWWWx xWWWWx   x   ",
+    "   xr  xxxx x xxxx  rx    ",
+    "    xr      x      rx     ",
+    "    xr      xx     rx     ",
+    "    xr             rx     ",
+    "    xr     rrr     rx     ",
+    "    xr  rrrrrrrrr  rx     ",
+    "    xrrrrrrWWWrrrrrrx     ",    //20
+    "    xrrrrrWrrrWrrrrrx     ",
+    "    xrrrrrWrrrWrrrrrx     ",
+    "     xrrrrrWWWrrrrrx      ",
+    "      xxrrrrrrrrrxx       ",
+    "        xxxxxxxxx         " 	 //25
+};
+
+
+char *bitmap_button_ext_desktop_other_clive_laugh[EXT_DESKTOP_BUTTONS_ANCHO]={
+    //01234567890123456789012345
+    "         xxxxxxx          ",     //0
+    "       xx       xx        ",
+    "      x           x       ",
+    "     x    x        x      ",
+    "    xr       x     rx     ",
+    "    xr             rx     ",
+    "    xr      x      rx     ",
+    "    xr             rx     ",
+    "    xr             rx     ",
+    "   xr  xxxx   xxxx  rx    ",
+    "  x   x    x x    x   x   ",	//10
+    "  x   xxxxxx xxxxxx   x   ",
+    "  x   x    x x    x   x   ",
+    "  x    xxxx   xxxx    x   ",
+    "   xr       x       rx    ",
+    "    xr      x      rx     ",
+    "    xr      xx     rx     ",
+    "    xr             rx     ",
+    "    xr     rrr     rx     ",
+    "    xr  rxxxxxxxr  rx     ",
+    "    xrrrxWWWWWWWxrrrx     ",    //20
+    "    xrrrxWWWWWWWxrrrx     ",
+    "    xrrrrxWWWWWxrrrrx     ",
+    "     xrrrrxxxxxrrrrx      ",
+    "      xxrrrrrrrrrxx       ",
+    "        xxxxxxxxx         " 	 //25
+};
+
+int zxdesktop_other_icons_count_list(void)
+{
+    int i;
+
+    for (i=0;zxdesktop_other_icons_list[i].bitmap!=NULL;i++);
+
+    return i;
+}

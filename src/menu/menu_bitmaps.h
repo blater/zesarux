@@ -298,6 +298,12 @@ extern char *bitmap_button_ext_desktop_mirilla_lightgun_disparada[];
 extern char *bitmap_button_ext_desktop_sendtextkeystrokesstatus[];
 extern char *bitmap_button_ext_desktop_paste_keystrokes[];
 
+extern char *bitmap_button_ext_desktop_other_sad_mac[];
+extern char *bitmap_button_ext_desktop_other_clive[];
+extern char *bitmap_button_ext_desktop_other_clive_sad[];
+extern char *bitmap_button_ext_desktop_other_clive_surprised[];
+extern char *bitmap_button_ext_desktop_other_clive_laugh[];
+
 #define EXT_DESKTOP_TOTAL_BUTTONS 14
 
 #define EXT_DESKTOP_BUTTONS_ANCHO 26
@@ -306,5 +312,19 @@ extern char *bitmap_button_ext_desktop_paste_keystrokes[];
 #define EXT_DESKTOP_BUTTONS_TOTAL_SIZE 32
 
 #define EXT_DESKTOP_BUTTON_CLOSE_ALL_ID 12
+
+
+#define OTHER_ICONS_NAME_MAX_LENGHT 30
+
+struct s_zxdesktop_other_icons {
+    //usado de momento para alternate bitmaps
+    //nombre sin espacios
+    char name[OTHER_ICONS_NAME_MAX_LENGHT];
+    char **bitmap;
+};
+
+extern struct s_zxdesktop_other_icons zxdesktop_other_icons_list[];
+
+extern int zxdesktop_other_icons_count_list(void);
 
 #endif
