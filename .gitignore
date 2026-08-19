@@ -66,3 +66,5 @@ src/install.sh
 # KDevelop IDE does produce these local folders and files:
 .kdev4/
 *.kdev4
+
+.DS_Store
