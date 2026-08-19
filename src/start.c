@@ -291,7 +291,7 @@ char zesarux_path_location[PATH_MAX]="";
 //Si activado el homenaje para David
 z80_bit activated_in_memoriam_david={0};
 
-//Suppress informational startup UI while preserving warnings and errors
+//Suppress non-error startup and shutdown output
 z80_bit silent_startup_messages={0};
 
 //Inicio command_line flags
@@ -1162,7 +1162,7 @@ printf (
         "--enable-search-menu           Enable search menu feature (enabled by default)\n"
 
         "--nowelcomemessage             Disable welcome logo & message\n"
-        "--silent, -s                   Suppress informational startup messages\n"
+        "--silent, -s                   Suppress non-error startup and shutdown messages\n"
         "--fastwelcomemessage           Sets fast welcome message\n"
         "--quickexit                    Exit emulator quickly: no yes/no confirmation and no fadeout\n"
 
@@ -8535,6 +8535,11 @@ int zesarux_main (int main_argc,char *main_argv[]) {
 
     }
 
+    //This must be detected before emitting the copyright and other early startup messages.
+    if (has_silent_startup_option(main_argc,main_argv)) {
+        silent_startup_messages.v=1;
+    }
+
 
     //de momento ponemos esto a null y los mensajes siempre saldran por un printf normal
     scr_messages_debug=NULL;
@@ -8558,7 +8563,9 @@ int zesarux_main (int main_argc,char *main_argv[]) {
 
             util_get_dir(macos_path_to_executable,zesarux_path_location);
 
-            printf ("Changing to Mac App bundle directory: %s\n",zesarux_path_location);
+            if (silent_startup_messages.v==0) {
+                printf ("Changing to Mac App bundle directory: %s\n",zesarux_path_location);
+            }
             chdir(zesarux_path_location);
 
     }
@@ -8584,7 +8591,8 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
 
 //Begin Copyright message
 
-    printf ("ZEsarUX - ZX Second-Emulator And Released for UniX\n"
+    if (silent_startup_messages.v==0) {
+        printf ("ZEsarUX - ZX Second-Emulator And Released for UniX\n"
     "https://github.com/chernandezba/zesarux\n\n"
     "Copyright (C) 2013 Cesar Hernandez Bano\n"
     "\n"
@@ -8603,14 +8611,15 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
     "\n"
     );
 
-    printf ("Please read the other licenses used in ZEsarUX, from the menu Help->Licenses or just open files from licenses/ folder\n\n\n");
+        printf ("Please read the other licenses used in ZEsarUX, from the menu Help->Licenses or just open files from licenses/ folder\n\n\n");
 
 
 
     //printf ("ZEsarUX Version: " EMULATOR_VERSION " Date: " EMULATOR_DATE " - " EMULATOR_EDITION_NAME "\n"
-    printf ("ZEsarUX " EMULATOR_VERSION " - " EMULATOR_EDITION_NAME ". " EMULATOR_DATE  "\n"
+        printf ("ZEsarUX " EMULATOR_VERSION " - " EMULATOR_EDITION_NAME ". " EMULATOR_DATE  "\n"
 
             "\n");
+    }
 
 
 //End Copyright message
@@ -8620,9 +8629,11 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
 
 
 #ifdef DEBUG_SECOND_TRAP_STDOUT
-    printf ("\n\nWARNING!!!! DEBUG_SECOND_TRAP_STDOUT enabled!!\n"
-        "Enable this only when you want to find printing routines\n\n");
-    sleep (3);
+    if (silent_startup_messages.v==0) {
+        printf ("\n\nWARNING!!!! DEBUG_SECOND_TRAP_STDOUT enabled!!\n"
+            "Enable this only when you want to find printing routines\n\n");
+        sleep (3);
+    }
 #endif
 
     //conversion de valor BUILDNUMBER a entero
@@ -8979,10 +8990,12 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
     init_randomize_noise_value();
 
 #ifdef SNAPSHOT_VERSION
-    printf ("Build number: " BUILDNUMBER "\n");
+    if (silent_startup_messages.v==0) {
+        printf ("Build number: " BUILDNUMBER "\n");
 
-    printf ("WARNING. This is a Snapshot version and not a stable one\n"
+        printf ("WARNING. This is a Snapshot version and not a stable one\n"
              "Some features may not work, random crashes could happen, abnormal CPU usage, or lots of debug messages on console\n\n");
+    }
 
     //int pausa_warning_snapshot=1;
 
@@ -8998,7 +9011,7 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
 #endif
 
 
-    print_funny_message();
+    if (silent_startup_messages.v==0) print_funny_message();
 
 
 
@@ -9006,7 +9019,9 @@ Also, you should keep the following copyright message, beginning with "Begin Cop
         //Si no se ha pasado ningun parametro, ni parametro --nodisableconsole, sea en consola o en archivo de configuracion, liberar consola, con pausa de 2 segundos para que se vea un poco :P
         if (main_argc==1 && windows_no_disable_console.v==0) {
                 sleep(2);
-                printf ("Disabling text printing on this console. Specify --nodisableconsole or any other command line setting to avoid it\n");
+                if (silent_startup_messages.v==0) {
+                    printf ("Disabling text printing on this console. Specify --nodisableconsole or any other command line setting to avoid it\n");
+                }
                 FreeConsole();
         }
 #endif
@@ -9624,7 +9639,7 @@ int ending_emulator_flag=0;
 //pues generaba segfaults en las rutinas de guardar ventanas (--restorewindow)
 void end_emulator_saveornot_config(int saveconfig)
 {
-    debug_printf (VERBOSE_INFO,"End emulator");
+    if (silent_startup_messages.v==0) debug_printf (VERBOSE_INFO,"End emulator");
 
     //Para indicar al thread de emulacion que tiene que salir, esto es valido cuando se llega aqui con ctrl-c
     //Si no, se quedaria el loop de emulacion por debajo y en cuanto aqui cerramos el driver de video,
