@@ -4107,6 +4107,40 @@ int util_get_file_in_home_dir(char *destpath,char *file_to_find)
 
 }
 
+//Retorna una ruta dentro de ~/.zesar en Unix y migra el archivo antiguo
+//desde HOME. En Windows conserva la ubicacion anterior.
+int util_get_file_in_zesarux_dir(char *destpath,char *file_to_find,char *legacy_file_to_find)
+{
+#ifdef MINGW
+    return util_get_file_in_home_dir(destpath,legacy_file_to_find);
+#else
+    char zesarux_dir[PATH_MAX];
+    char legacy_path[PATH_MAX];
+    struct stat dir_stat;
+
+    if (util_get_file_in_home_dir(zesarux_dir,".zesar")==0) return 0;
+
+    if (stat(zesarux_dir,&dir_stat)!=0) {
+        if (mkdir(zesarux_dir,S_IRWXU)!=0) {
+            debug_printf(VERBOSE_ERR,"Cannot create ZEsarUX directory %s: %s",zesarux_dir,strerror(errno));
+            return 0;
+        }
+    }
+    else if (!S_ISDIR(dir_stat.st_mode)) return 0;
+
+    if (snprintf(destpath,PATH_MAX,"%s/%s",zesarux_dir,file_to_find)>=PATH_MAX) return 0;
+
+    if (!si_existe_archivo(destpath) &&
+        util_get_file_in_home_dir(legacy_path,legacy_file_to_find) &&
+        si_existe_archivo(legacy_path) && rename(legacy_path,destpath)!=0) {
+        debug_printf(VERBOSE_DEBUG,"Cannot migrate ZEsarUX file %s to %s",legacy_path,destpath);
+        strcpy(destpath,legacy_path);
+    }
+
+    return 1;
+#endif
+}
+
 int util_get_configfile_name(char *configfile)
 {
   if (customconfigfile!=NULL) {
@@ -4114,7 +4148,7 @@ int util_get_configfile_name(char *configfile)
         return 1;
   }
 
-  return util_get_file_in_home_dir(configfile,DEFAULT_ZESARUX_CONFIG_FILE);
+  return util_get_file_in_zesarux_dir(configfile,DEFAULT_ZESARUX_CONFIG_FILE,LEGACY_ZESARUX_CONFIG_FILE);
 }
 
 int util_get_devconfigfile_name(char *configfile)

@@ -534,7 +534,7 @@ void menu_settings_config_file(MENU_ITEM_PARAMETERS)
         menu_add_item_menu_shortcut(array_menu_settings_config_file,'c');
         menu_add_item_menu_tooltip(array_menu_settings_config_file,"Change config file location");
         menu_add_item_menu_ayuda(array_menu_settings_config_file,"Change config file location. "
-            "If you want to use this config file on startup instead of the default .zesaruxrc file you must launch ZEsarUX with setting --configfile");
+            "To use this config file on startup instead of the default user configuration, launch ZEsarUX with --configfile");
         menu_add_item_menu_add_flags(array_menu_settings_config_file,MENU_ITEM_FLAG_GENERA_VENTANA|MENU_ITEM_FLAG_SE_CERRARA|MENU_ITEM_FLAG_ES_AVANZADO);
 
         menu_add_item_menu_separator(array_menu_settings_config_file);

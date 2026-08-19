@@ -299,6 +299,7 @@ extern int lee_archivo(char *nombre,char *buffer,int max_longitud);
 
 extern int util_get_configfile_name(char *configfile);
 extern int util_get_file_in_home_dir(char *destpath,char *file_to_find);
+extern int util_get_file_in_zesarux_dir(char *destpath,char *file_to_find,char *legacy_file_to_find);
 
 //extern void util_print_second_overlay(char *texto, int x, int y);
 
@@ -735,7 +736,8 @@ extern void convert_numeros_puerto_teclado(z80_byte tecla,int pressrelease);
 
 extern int util_tape_tap_get_info(z80_byte *origen_tape,char *texto,int origin_tap,int longitud_origen);
 
-#define DEFAULT_ZESARUX_CONFIG_FILE ".zesaruxrc"
+#define DEFAULT_ZESARUX_CONFIG_FILE "zesaruxrc"
+#define LEGACY_ZESARUX_CONFIG_FILE ".zesaruxrc"
 
 #define DEFAULT_ZESARUX_DEVCONFIG_FILE ".zesaruxdevrc"
 

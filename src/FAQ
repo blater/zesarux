@@ -1072,8 +1072,8 @@ Depending on the operating system:
 
 
 Finally, if you want to remove also the configuration file:
--GNU/Linux: located on $HOME/.zesaruxrc
--Mac: located on $HOME/.zesaruxrc
+-GNU/Linux: located at $HOME/.zesar/zesaruxrc
+-Mac: located at $HOME/.zesar/zesaruxrc
 -Windows: located on your home folder, name ".zesaruxrc". Your home folder is something like "c:\users\myusername\"
 
 

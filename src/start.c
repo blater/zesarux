@@ -753,7 +753,11 @@ void zesarux_cmdline_help(void)
         "--helpzmenufiles        Show help for zmenu files\n"
         "\n"
         "Any command line setting shown here or on experthelp can be written on a configuration file,\n"
-        "this configuration file is on your home directory with name: " DEFAULT_ZESARUX_CONFIG_FILE "\n"
+#ifndef MINGW
+        "the default configuration file is ~/.zesar/" DEFAULT_ZESARUX_CONFIG_FILE "\n"
+#else
+        "the default configuration file is " LEGACY_ZESARUX_CONFIG_FILE " in your home directory\n"
+#endif
 
         "\n"
 
@@ -777,7 +781,7 @@ void zesarux_cmdline_help_expert(void)
         "The following is the order parsing options :\n"
         "\n"
         "1) Special options from command line: --noconfigfile, --configfile, --help, --experthelp\n"
-        "2) Settings from the configuration file .zesaruxrc\n"
+        "2) Settings from the main configuration file\n"
         "3) Settings from command line\n"
         "4) Settings from .zesaruxdevrc if activated setting --load-additional-config and the .zesaruxdevrc file exists\n"
         "\n"
@@ -959,7 +963,7 @@ printf (
 
         "--saveconf-on-exit         Always save configuration when exiting emulator\n"
         "--no-saveconf-on-exit      Do not save configuration when exiting emulator (default setting). Can be used to override a previous --saveconf-on-exit for example\n"
-        "--load-additional-config   Loads an additional .zesaruxdevrc config file (if exists) after loading .zesaruxrc and parsing command line settings\n"
+        "--load-additional-config   Loads an additional .zesaruxdevrc config file (if exists) after loading the main config and parsing command line settings\n"
 
 
         "\n"
