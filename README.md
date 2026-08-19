@@ -1,7 +1,8 @@
 # ZEsarUX headless automation fork
 
-`main` mirrors upstream ZEsarUX. `integration/zrcp-automation` combines the
-patches described below. Each patch also has its own feature branch.
+`main` is the stable branch for this fork. `integration/zrcp-automation` is the
+staging branch used to combine and validate the patches described below before
+they are promoted to `main`. Each patch also has its own feature branch.
 
 This fork adds a small set of remote-control improvements for safer, more
 deterministic automated testing:
